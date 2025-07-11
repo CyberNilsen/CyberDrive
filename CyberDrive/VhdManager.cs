@@ -7,6 +7,15 @@ using System.Threading.Tasks;
 
 namespace CyberDrive
 {
+    public class DriveInfo
+    {
+        public string DriveLetter { get; set; }
+        public double TotalSpaceGB { get; set; }
+        public double FreeSpaceGB { get; set; }
+        public long TotalSpaceBytes { get; set; }
+        public long FreeSpaceBytes { get; set; }
+    }
+
     public static class VhdManager
     {
         public static async Task CreateVHDAsync(string vhdPath, int sizeInMB)
@@ -25,8 +34,13 @@ detach vdisk
             await RunDiskpartAsync(diskpartScript);
         }
 
-        public static async Task<char> MountVHDAsync(string vhdPath)
+        public static async Task<DriveInfo> MountVHDAsync(string vhdPath)
         {
+            var drivesBefore = System.IO.DriveInfo.GetDrives()
+                .Where(d => d.DriveType == DriveType.Fixed)
+                .Select(d => d.Name.Substring(0, 1))
+                .ToList();
+
             string diskpartScript = $@"
 select vdisk file=""{vhdPath}""
 attach vdisk
@@ -34,9 +48,55 @@ attach vdisk
 
             await RunDiskpartAsync(diskpartScript);
 
-            await Task.Delay(2000);
+            await Task.Delay(3000);
 
-            return await GetVHDDriveLetterAsync(vhdPath);
+            var drivesAfter = System.IO.DriveInfo.GetDrives()
+                .Where(d => d.DriveType == DriveType.Fixed)
+                .ToList();
+
+            var newDrive = drivesAfter.FirstOrDefault(d =>
+                !drivesBefore.Contains(d.Name.Substring(0, 1)) &&
+                d.IsReady);
+
+            if (newDrive != null)
+            {
+                return new DriveInfo
+                {
+                    DriveLetter = newDrive.Name,
+                    TotalSpaceBytes = newDrive.TotalSize,
+                    FreeSpaceBytes = newDrive.TotalFreeSpace,
+                    TotalSpaceGB = newDrive.TotalSize / (1024.0 * 1024.0 * 1024.0),
+                    FreeSpaceGB = newDrive.TotalFreeSpace / (1024.0 * 1024.0 * 1024.0)
+                };
+            }
+
+            foreach (var drive in drivesAfter.Where(d => d.IsReady))
+            {
+                try
+                {
+                    if (drive.VolumeLabel == "CyberDriveVault")
+                    {
+                        return new DriveInfo
+                        {
+                            DriveLetter = drive.Name,
+                            TotalSpaceBytes = drive.TotalSize,
+                            FreeSpaceBytes = drive.TotalFreeSpace,
+                            TotalSpaceGB = drive.TotalSize / (1024.0 * 1024.0 * 1024.0),
+                            FreeSpaceGB = drive.TotalFreeSpace / (1024.0 * 1024.0 * 1024.0)
+                        };
+                    }
+                }
+                catch { }
+            }
+
+            return new DriveInfo
+            {
+                DriveLetter = "Unknown",
+                TotalSpaceGB = 0,
+                FreeSpaceGB = 0,
+                TotalSpaceBytes = 0,
+                FreeSpaceBytes = 0
+            };
         }
 
         public static async Task UnmountVHDAsync(string vhdPath)
@@ -49,35 +109,23 @@ detach vdisk
             await RunDiskpartAsync(diskpartScript);
         }
 
-        private static async Task<char> GetVHDDriveLetterAsync(string vhdPath)
+        public static string[] GetMountedVaults()
         {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "wmic",
-                Arguments = "logicaldisk get size,freespace,caption",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            var vaultDrives = new List<string>();
 
-            using var process = Process.Start(startInfo);
-            string output = await process.StandardOutput.ReadToEndAsync();
-            await process.WaitForExitAsync();
-
-            var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            foreach (var line in lines)
+            foreach (var drive in System.IO.DriveInfo.GetDrives())
             {
-                if (line.Contains(":") && !line.Contains("Caption"))
+                try
                 {
-                    var parts = line.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length > 0 && parts[0].Length >= 2)
+                    if (drive.IsReady && drive.VolumeLabel == "CyberDriveVault")
                     {
-                        return parts[0][0];
+                        vaultDrives.Add($"{drive.Name} ({drive.TotalFreeSpace / (1024 * 1024 * 1024):F2} GB free)");
                     }
                 }
+                catch { }
             }
 
-            return 'Z'; 
+            return vaultDrives.ToArray();
         }
 
         private static async Task RunDiskpartAsync(string script)
