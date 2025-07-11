@@ -1,15 +1,40 @@
 ﻿<Window x:Class="CyberDrive.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CyberDrive"
-        mc:Ignorable="d"
-        Title="CyberDrive" Height="250" Width="400">
-    <StackPanel Margin="20">
-        <PasswordBox Name="PasswordInput"/>
-        <Button Content="Create Encrypted VHD" Click="CreateVault_Click" Margin="5"/>
-        <Button Content="Unlock Vault" Click="UnlockVault_Click" Margin="5"/>
-        <Button Content="Lock Vault" Click="LockVault_Click" Margin="5"/>
-    </StackPanel>
+        Title="CyberDrive - Encrypted Virtual Disk Manager" Height="320" Width="450"
+        ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF2D2D30" Offset="0"/>
+                <GradientStop Color="#FF1E1E1E" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <StackPanel Margin="30" VerticalAlignment="Center">
+            <TextBlock Text="CyberDrive" FontSize="24" FontWeight="Bold" 
+                       HorizontalAlignment="Center" Margin="0,0,0,20"
+                       Foreground="#FF00D4AA"/>
+
+            <TextBlock Text="Vault Name:" Margin="0,0,0,5" Foreground="White"/>
+            <TextBox Name="VaultNameInput" Margin="0,0,0,15" Height="30" 
+                     FontSize="14" Padding="8,5"/>
+
+            <TextBlock Text="Password:" Margin="0,0,0,5" Foreground="White"/>
+            <PasswordBox Name="PasswordInput" Margin="0,0,0,20" Height="30" 
+                         FontSize="14" Padding="8,5"/>
+
+            <Button Content="Create Encrypted Vault" Click="CreateVault_Click" 
+                    Margin="0,0,0,10" Height="35" FontSize="14" FontWeight="Bold"
+                    Background="#FF00D4AA" Foreground="White" BorderThickness="0"/>
+
+            <Button Content="Unlock Vault" Click="UnlockVault_Click" 
+                    Margin="0,0,0,10" Height="35" FontSize="14" FontWeight="Bold"
+                    Background="#FF4CAF50" Foreground="White" BorderThickness="0"/>
+
+            <Button Content="Lock Vault" Click="LockVault_Click" 
+                    Height="35" FontSize="14" FontWeight="Bold"
+                    Background="#FFF44336" Foreground="White" BorderThickness="0"/>
+        </StackPanel>
+    </Grid>
 </Window>

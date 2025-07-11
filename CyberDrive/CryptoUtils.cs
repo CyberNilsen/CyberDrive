@@ -8,7 +8,7 @@ namespace CyberDrive
         public static void EncryptFile(string inputPath, string outputPath, string password)
         {
             var salt = RandomNumberGenerator.GetBytes(16);
-            var key = new Rfc2898DeriveBytes(password, salt, 100_000).GetBytes(32);
+            var key = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256).GetBytes(32);
 
             using var aes = Aes.Create();
             aes.Key = key;
@@ -16,8 +16,9 @@ namespace CyberDrive
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
 
-            using var input = new FileStream(inputPath, FileMode.Open);
-            using var output = new FileStream(outputPath, FileMode.Create);
+            using var input = new FileStream(inputPath, FileMode.Open, FileAccess.Read);
+            using var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write);
+
             output.Write(salt, 0, salt.Length);
             output.Write(aes.IV, 0, aes.IV.Length);
 
@@ -27,22 +28,24 @@ namespace CyberDrive
 
         public static void DecryptFile(string inputPath, string outputPath, string password)
         {
-            using var input = new FileStream(inputPath, FileMode.Open);
+            using var input = new FileStream(inputPath, FileMode.Open, FileAccess.Read);
 
             byte[] salt = new byte[16];
             byte[] iv = new byte[16];
             input.Read(salt, 0, 16);
             input.Read(iv, 0, 16);
 
-            var key = new Rfc2898DeriveBytes(password, salt, 100_000).GetBytes(32);
+            var key = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256).GetBytes(32);
+
             using var aes = Aes.Create();
             aes.Key = key;
             aes.IV = iv;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.PKCS7;
 
-            using var output = new FileStream(outputPath, FileMode.Create);
+            using var output = new FileStream(outputPath, FileMode.Create, FileAccess.Write);
             using var cryptoStream = new CryptoStream(input, aes.CreateDecryptor(), CryptoStreamMode.Read);
+
             cryptoStream.CopyTo(output);
         }
     }

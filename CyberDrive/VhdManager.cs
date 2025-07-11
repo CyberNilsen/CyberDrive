@@ -1,42 +1,121 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CyberDrive
 {
-    public class VhdManager
+    public static class VhdManager
     {
-        public static void CreateAndFormatVHD(string path, string label = "CyberDriveVault", string size = "500MB")
+        public static async Task CreateVHDAsync(string vhdPath, int sizeInMB)
         {
-            string command = $@"
-New-VHD -Path '{path}' -SizeBytes {size} -Dynamic | Mount-VHD
-$disk = Get-Disk | Where-Object PartitionStyle -Eq 'RAW'
-Initialize-Disk -Number $disk.Number -PartitionStyle MBR -PassThru |
-    New-Partition -UseMaximumSize -AssignDriveLetter |
-    Format-Volume -FileSystem NTFS -NewFileSystemLabel '{label}' -Confirm:$false
-Dismount-VHD -Path '{path}'
+            string diskpartScript = $@"
+create vdisk file=""{vhdPath}"" maximum={sizeInMB} type=expandable
+select vdisk file=""{vhdPath}""
+attach vdisk
+create partition primary
+active
+format fs=ntfs label=""CyberDriveVault"" quick
+assign
+detach vdisk
 ";
 
-            RunPowerShell(command);
+            await RunDiskpartAsync(diskpartScript);
         }
 
-        public static void MountVHD(string path)
+        public static async Task<char> MountVHDAsync(string vhdPath)
         {
-            RunPowerShell($"Mount-VHD -Path \"{path}\"");
+            string diskpartScript = $@"
+select vdisk file=""{vhdPath}""
+attach vdisk
+";
+
+            await RunDiskpartAsync(diskpartScript);
+
+            await Task.Delay(2000);
+
+            return await GetVHDDriveLetterAsync(vhdPath);
         }
 
-        public static void UnmountVHD(string path)
+        public static async Task UnmountVHDAsync(string vhdPath)
         {
-            RunPowerShell($"Dismount-VHD -Path \"{path}\"");
+            string diskpartScript = $@"
+select vdisk file=""{vhdPath}""
+detach vdisk
+";
+
+            await RunDiskpartAsync(diskpartScript);
         }
 
-        public static void RunPowerShell(string command)
+        private static async Task<char> GetVHDDriveLetterAsync(string vhdPath)
         {
-            Process.Start(new ProcessStartInfo
+            var startInfo = new ProcessStartInfo
             {
-                FileName = "powershell.exe",
-                Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{command}\"",
+                FileName = "wmic",
+                Arguments = "logicaldisk get size,freespace,caption",
+                RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
-            });
+            };
+
+            using var process = Process.Start(startInfo);
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            var lines = output.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                if (line.Contains(":") && !line.Contains("Caption"))
+                {
+                    var parts = line.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 0 && parts[0].Length >= 2)
+                    {
+                        return parts[0][0];
+                    }
+                }
+            }
+
+            return 'Z'; 
+        }
+
+        private static async Task RunDiskpartAsync(string script)
+        {
+            var tempScriptFile = Path.GetTempFileName();
+
+            try
+            {
+                await File.WriteAllTextAsync(tempScriptFile, script);
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "diskpart",
+                    Arguments = $"/s \"{tempScriptFile}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = Process.Start(startInfo);
+                string output = await process.StandardOutput.ReadToEndAsync();
+                string error = await process.StandardError.ReadToEndAsync();
+                await process.WaitForExitAsync();
+
+                if (process.ExitCode != 0)
+                {
+                    throw new Exception($"Diskpart failed with exit code {process.ExitCode}. Error: {error}. Output: {output}");
+                }
+            }
+            finally
+            {
+                try
+                {
+                    File.Delete(tempScriptFile);
+                }
+                catch { }
+            }
         }
     }
 }
