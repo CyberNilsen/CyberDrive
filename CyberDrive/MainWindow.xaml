@@ -5,8 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CyberDrive"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+        Title="CyberDrive" Height="250" Width="400">
+    <StackPanel Margin="20">
+        <PasswordBox Name="PasswordInput"/>
+        <Button Content="Create Encrypted VHD" Click="CreateVault_Click" Margin="5"/>
+        <Button Content="Unlock Vault" Click="UnlockVault_Click" Margin="5"/>
+        <Button Content="Lock Vault" Click="LockVault_Click" Margin="5"/>
+    </StackPanel>
 </Window>
