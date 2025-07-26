@@ -20,12 +20,6 @@ A modern, secure virtual disk encryption tool for Windows that creates and manag
 - .NET Framework 4.7.2 or higher
 - **Administrator privileges** (required for VHD operations)
 
-### Installation
-
-1. Download the latest release from the [Releases](../../releases) page
-2. Extract the ZIP file to your desired location
-3. Right-click `CyberDrive.exe` and select "Run as administrator"
-
 ### Usage
 
 1. **Create a Vault**
