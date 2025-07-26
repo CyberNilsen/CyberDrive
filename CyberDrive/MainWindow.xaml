@@ -1,44 +1,331 @@
 ﻿<Window x:Class="CyberDrive.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="CyberDrive - Encrypted Virtual Disk Manager" Height="442" Width="450"
-        ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="CyberDrive - Encrypted Virtual Disk Manager" 
+        MinHeight="650" MinWidth="520"
+        Height="700" Width="550"
+        ResizeMode="CanResize" 
+        WindowStartupLocation="CenterScreen"
+        Background="#FF1A1A1A">
+
+    <Window.Resources>
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="MinHeight" Value="50"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="12">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.3"/>
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.02" ScaleY="1.02"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FF00E5C0" Offset="0"/>
+                        <GradientStop Color="#FF00C8AA" Offset="0.5"/>
+                        <GradientStop Color="#FF00B89A" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FF5CBF60" Offset="0"/>
+                        <GradientStop Color="#FF4CAF50" Offset="0.5"/>
+                        <GradientStop Color="#FF388E3C" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFFF5555" Offset="0"/>
+                        <GradientStop Color="#FFF44336" Offset="0.5"/>
+                        <GradientStop Color="#FFD32F2F" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="InfoButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#FFAB47BC" Offset="0"/>
+                        <GradientStop Color="#FF9C27B0" Offset="0.5"/>
+                        <GradientStop Color="#FF7B1FA2" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#FF2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF404040"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinHeight" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.2"/>
+                            </Border.Effect>
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="{TemplateBinding Padding}"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#FF00E5C0"/>
+                                <Setter Property="Background" Value="#FF353538"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#FF606060"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Background" Value="#FF2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF404040"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinHeight" Value="45"/>
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.2"/>
+                            </Border.Effect>
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="{TemplateBinding Padding}"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#FF00E5C0"/>
+                                <Setter Property="Background" Value="#FF353538"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#FF606060"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GlowText" TargetType="TextBlock">
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#FF00E5C0" BlurRadius="15" ShadowDepth="0" Opacity="0.6"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.Background>
-            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                <GradientStop Color="#FF2D2D30" Offset="0"/>
-                <GradientStop Color="#FF1E1E1E" Offset="1"/>
-            </LinearGradientBrush>
+            <RadialGradientBrush>
+                <GradientStop Color="#FF1A1A1A" Offset="0"/>
+                <GradientStop Color="#FF0D0D0D" Offset="1"/>
+            </RadialGradientBrush>
         </Grid.Background>
 
-        <StackPanel Margin="30" VerticalAlignment="Center">
-            <TextBlock Text="CyberDrive" FontSize="24" FontWeight="Bold" 
-                       HorizontalAlignment="Center" Margin="0,0,0,20"
-                       Foreground="#FF00D4AA"/>
+        <Canvas>
+            <Ellipse Width="200" Height="200" Fill="#FF00E5C0" Opacity="0.03"
+                     Canvas.Left="-100" Canvas.Top="-100">
+                <Ellipse.RenderTransform>
+                    <RotateTransform/>
+                </Ellipse.RenderTransform>
+                <Ellipse.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                               From="0" To="360" Duration="0:0:30"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Ellipse.Triggers>
+            </Ellipse>
 
-            <TextBlock Text="Vault Name:" Margin="0,0,0,5" Foreground="White"/>
-            <TextBox Name="VaultNameInput" Margin="0,0,0,15" Height="30" 
-                     FontSize="14" Padding="8,5"/>
+            <Ellipse Width="150" Height="150" Fill="#FF9C27B0" Opacity="0.02"
+                     Canvas.Right="-75" Canvas.Bottom="-75">
+                <Ellipse.RenderTransform>
+                    <RotateTransform/>
+                </Ellipse.RenderTransform>
+                <Ellipse.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                               From="360" To="0" Duration="0:0:25"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Ellipse.Triggers>
+            </Ellipse>
+        </Canvas>
 
-            <TextBlock Text="Password:" Margin="0,0,0,5" Foreground="White"/>
-            <PasswordBox Name="PasswordInput" Margin="0,0,0,20" Height="30" 
-                         FontSize="14" Padding="8,5"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled"
+                      Margin="20">
+            <Border Background="#FF1E1E1E" CornerRadius="20" 
+                    BorderBrush="#FF333333" BorderThickness="1"
+                    MinHeight="600">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="30" ShadowDepth="0" Opacity="0.7"/>
+                </Border.Effect>
 
-            <Button Content="Create Encrypted Vault" Click="CreateVault_Click" 
-                    Margin="0,0,0,10" Height="35" FontSize="14" FontWeight="Bold"
-                    Background="#FF00D4AA" Foreground="White" BorderThickness="0"/>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-            <Button Content="Unlock Vault" Click="UnlockVault_Click" 
-                    Margin="0,0,0,10" Height="35" FontSize="14" FontWeight="Bold"
-                    Background="#FF4CAF50" Foreground="White" BorderThickness="0"/>
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" 
+                                Margin="30,40,30,30">
+                        <Viewbox Width="90" Height="90" Margin="0,0,0,25">
+                            <Border Width="80" Height="80" Background="#FF00E5C0" 
+                                    CornerRadius="40">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#FF00E5C0" BlurRadius="35" ShadowDepth="0" Opacity="0.8"/>
+                                </Border.Effect>
+                                <Border.RenderTransform>
+                                    <ScaleTransform/>
+                                </Border.RenderTransform>
+                                <Border.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX"
+                                                               From="1" To="1.05" Duration="0:0:2" AutoReverse="True"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY"
+                                                               From="1" To="1.05" Duration="0:0:2" AutoReverse="True"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Border.Triggers>
+                                <TextBlock Text="🔒" FontSize="40" HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                        </Viewbox>
 
-            <Button Content="Lock Vault" Click="LockVault_Click" 
-                    Margin="0,0,0,10" Height="35" FontSize="14" FontWeight="Bold"
-                    Background="#FFF44336" Foreground="White" BorderThickness="0"/>
+                        <TextBlock Text="CyberDrive" FontSize="34" FontWeight="Bold" 
+                                   HorizontalAlignment="Center" Foreground="White" 
+                                   Margin="0,0,0,8" Style="{StaticResource GlowText}"/>
 
-            <Button Content="Check Mounted Vaults" Click="CheckMountedVaults_Click" 
-                    Height="35" FontSize="14" FontWeight="Bold"
-                    Background="#FF9C27B0" Foreground="White" BorderThickness="0"/>
-        </StackPanel>
+                        <TextBlock Text="Encrypted Virtual Disk Manager" FontSize="15" 
+                                   HorizontalAlignment="Center" Foreground="#FFAAAAAA"
+                                   FontWeight="Medium"/>
+
+                        <Rectangle Height="2" Fill="#FF00E5C0" Opacity="0.6" 
+                                   Width="100" Margin="0,20,0,0" RadiusX="1" RadiusY="1">
+                            <Rectangle.Effect>
+                                <DropShadowEffect Color="#FF00E5C0" BlurRadius="8" ShadowDepth="0" Opacity="0.8"/>
+                            </Rectangle.Effect>
+                        </Rectangle>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Margin="40,0,40,20">
+                        <TextBlock Text="Vault Name" Margin="5,0,0,10" Foreground="#FFDDDDDD" 
+                                   FontSize="15" FontWeight="SemiBold"/>
+                        <TextBox Name="VaultNameInput" Style="{StaticResource ModernTextBox}" 
+                                 Margin="0,0,0,25"/>
+
+                        <TextBlock Text="Password" Margin="5,0,0,10" Foreground="#FFDDDDDD" 
+                                   FontSize="15" FontWeight="SemiBold"/>
+                        <PasswordBox Name="PasswordInput" Style="{StaticResource ModernPasswordBox}" 
+                                     Margin="0,0,0,30"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Margin="40,0,40,40" 
+                                VerticalAlignment="Top">
+                        <Button Content="🔒  Create Encrypted Vault" 
+                                Click="CreateVault_Click" 
+                                Style="{StaticResource PrimaryButton}"/>
+
+                        <Button Content="🔓  Unlock Vault" 
+                                Click="UnlockVault_Click" 
+                                Style="{StaticResource SuccessButton}"/>
+
+                        <Button Content="🔐  Lock Vault" 
+                                Click="LockVault_Click" 
+                                Style="{StaticResource DangerButton}"/>
+
+                        <Button Content="📋  Check Mounted Vaults" 
+                                Click="CheckMountedVaults_Click" 
+                                Style="{StaticResource InfoButton}"/>
+
+                        <TextBlock Text="Secure • Private • Encrypted" 
+                                   HorizontalAlignment="Center" 
+                                   Foreground="#FF666666" 
+                                   FontSize="12" 
+                                   Margin="0,30,0,0"
+                                   FontStyle="Italic"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </ScrollViewer>
     </Grid>
 </Window>
