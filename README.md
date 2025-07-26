@@ -2,7 +2,10 @@
 
 A modern, secure virtual disk encryption tool for Windows that creates and manages encrypted virtual hard drives (VHDs) with AES-256 encryption and secure file deletion capabilities.
 
+<div align="center">
 <img width="634" height="1027" alt="CyberDrive Interface" src="https://github.com/user-attachments/assets/9a5c2b94-d276-467a-8ff6-ab89bfe51c9b" />
+</div>
+
 ## ✨ Features
 
 - **🔐 AES-256 Encryption** - Military-grade encryption using PBKDF2 with 100,000 iterations
